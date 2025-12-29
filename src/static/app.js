@@ -21,8 +21,30 @@ document.addEventListener("DOMContentLoaded", () => {
         const spotsLeft = details.max_participants - details.participants.length;
         
         const participantsList = details.participants.length > 0
-          ? details.participants.map(p => `<li>${p}</li>`).join("")
+          ? details.participants.map(p => `
+              <li>
+                ${p}
+                <span class="delete-icon" onclick="deleteParticipant('${name}', '${p}')">🗑️</span>
+              </li>`).join("")
           : "<li><em>No participants yet</em></li>";
+
+        // Function to delete a participant
+        window.deleteParticipant = async (activityName, email) => {
+          const response = await fetch(`/activities/${activityName}/unregister`, {
+            method: 'DELETE',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ email }),
+          });
+
+          if (response.ok) {
+            fetchActivities(); // Refresh the activities list
+          } else {
+            const error = await response.json();
+            alert(error.detail);
+          }
+        };
 
         activityCard.innerHTML = `
           <h4>${name}</h4>
